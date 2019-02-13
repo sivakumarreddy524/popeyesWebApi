@@ -8,7 +8,7 @@
     "HelloLogGroup": {
       "Type": "AWS::Logs::LogGroup",
       "Properties": {
-        "LogGroupName": "/aws/lambda/PopeyesUaeWebApi-dev-hello"
+        "LogGroupName": "/aws/lambda/PosWebApi-prod-hello"
       }
     },
     "IamRoleLambdaExecution": {
@@ -36,8 +36,8 @@
               "Fn::Join": [
                 "-",
                 [
-                  "dev",
-                  "PopeyesUaeWebApi",
+                  "prod",
+                  "PosWebApi",
                   "lambda"
                 ]
               ]
@@ -52,7 +52,7 @@
                   ],
                   "Resource": [
                     {
-                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/PopeyesUaeWebApi-dev-hello:*"
+                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/PosWebApi-prod-hello:*"
                     }
                   ]
                 },
@@ -63,7 +63,7 @@
                   ],
                   "Resource": [
                     {
-                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/PopeyesUaeWebApi-dev-hello:*:*"
+                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/PosWebApi-prod-hello:*:*"
                     }
                   ]
                 }
@@ -76,8 +76,8 @@
           "Fn::Join": [
             "-",
             [
-              "PopeyesUaeWebApi",
-              "dev",
+              "PosWebApi",
+              "prod",
               "us-east-1",
               "lambdaRole"
             ]
@@ -92,9 +92,9 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/PopeyesUaeWebApi/dev/1548737620585-2019-01-29T04:53:40.585Z/PopeyesUaeWebApi.zip"
+          "S3Key": "serverless/PosWebApi/prod/1548765075189-2019-01-29T12:31:15.189Z/PosWebApi.zip"
         },
-        "FunctionName": "PopeyesUaeWebApi-dev-hello",
+        "FunctionName": "PosWebApi-prod-hello",
         "Handler": "handler.hello",
         "MemorySize": 1024,
         "Role": {
@@ -112,7 +112,7 @@
             "password": "Bits1234",
             "database": "posdirectdb2",
             "tenantid": 2,
-            "defaultTaxGroup": 297
+            "defaultTaxGroup": 1
           }
         }
       },
@@ -121,20 +121,20 @@
         "IamRoleLambdaExecution"
       ]
     },
-    "HelloLambdaVersionAAwHNgYytNVzOxbSlxswSEhXlDEbkYFSTPvhKo6oU": {
+    "HelloLambdaVersion53Gtn7DkIcjKoLyILaMDMXYm3SnWwANecaBKQ9iE": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "HelloLambdaFunction"
         },
-        "CodeSha256": "qp0Tb/9IkRxGEjaxxhxlLOPaJLx8DF8aS2NtOXydAak="
+        "CodeSha256": "HLJmCA0BdMgyWl5bnjKbcVYJwWuuZs3kYiCO00JPn+k="
       }
     },
     "ApiGatewayRestApi": {
       "Type": "AWS::ApiGateway::RestApi",
       "Properties": {
-        "Name": "dev-PopeyesUaeWebApi",
+        "Name": "prod-PosWebApi",
         "EndpointConfiguration": {
           "Types": [
             "EDGE"
@@ -152,6 +152,33 @@
           ]
         },
         "PathPart": "categories",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayResourceItem": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "ApiGatewayRestApi",
+            "RootResourceId"
+          ]
+        },
+        "PathPart": "item",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayResourceItemIdVar": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Ref": "ApiGatewayResourceItem"
+        },
+        "PathPart": "{id}",
         "RestApiId": {
           "Ref": "ApiGatewayRestApi"
         }
@@ -200,16 +227,63 @@
         "MethodResponses": []
       }
     },
-    "ApiGatewayDeployment1548737620604": {
+    "ApiGatewayMethodItemIdVarGet": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "GET",
+        "RequestParameters": {
+          "method.request.querystring.tenantId": true,
+          "method.request.path.id": true
+        },
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceItemIdVar"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "HelloLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      }
+    },
+    "ApiGatewayDeployment1548765075213": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
           "Ref": "ApiGatewayRestApi"
         },
-        "StageName": "dev"
+        "StageName": "prod"
       },
       "DependsOn": [
-        "ApiGatewayMethodCategoriesGet"
+        "ApiGatewayMethodCategoriesGet",
+        "ApiGatewayMethodItemIdVarGet"
       ]
     },
     "HelloLambdaPermissionApiGateway": {
@@ -269,7 +343,7 @@
     "HelloLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "HelloLambdaVersionAAwHNgYytNVzOxbSlxswSEhXlDEbkYFSTPvhKo6oU"
+        "Ref": "HelloLambdaVersion53Gtn7DkIcjKoLyILaMDMXYm3SnWwANecaBKQ9iE"
       }
     },
     "ServiceEndpoint": {
@@ -286,7 +360,7 @@
             {
               "Ref": "AWS::URLSuffix"
             },
-            "/dev"
+            "/prod"
           ]
         ]
       }

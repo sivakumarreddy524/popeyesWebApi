@@ -14,8 +14,22 @@ export default function setRoutes(app, pool) {
 
 
     router.route('/categories').get(async (req, res) => {
+
+        let tenantId = req.query.tenantId
+
+        if (!tenantId) {
+            res.status(500).json({
+                status: 'error',
+                error: 'Parameter not found'
+            });
+
+            return
+        }
+
+
+
         try {
-            dao.getCategories(pool).then(
+            dao.getCategories(tenantId, pool).then(
                 resp => {
                     res.status(200).json(resp);
                 },
@@ -50,11 +64,12 @@ export default function setRoutes(app, pool) {
 
 
         var id = req.params.id;
+        var tenantId = req.query.tenantId;
 
 
-        if (id) {
+        if (id && tenantId) {
             try {
-                dao.getItem(id,pool).then(
+                dao.getItem(tenantId, id, pool).then(
                     resp => {
                         res.status(200).json(resp);
                     },
@@ -83,7 +98,7 @@ export default function setRoutes(app, pool) {
         else {
             res.status(500).json({
                 status: 'error',
-                error: 'id not found',
+                error: 'parameter not found',
             });
         }
 

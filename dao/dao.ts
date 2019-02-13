@@ -1,35 +1,34 @@
 const lodash = require('lodash')
-let tenantId = process.env.tenantid
-let defaultTaxGroup = process.env.defaultTaxGroup
 
 
-console.log("tenantId  =====> " + tenantId);
+export function getCategories(tenantId, pool) {
+
+    let parentCatQuery = `select id,name,image from menu_category where tenant_id=${tenantId} and id in 
+    (select distinct IFNULL(parent_category_id,0) from menu_category where tenant_id=${tenantId} and active=true) order by name;`
 
 
-let parentCatQuery = `select id,name,image from menu_category where tenant_id=${tenantId} and id in 
-(select distinct IFNULL(parent_category_id,0) from menu_category where tenant_id=${tenantId} and active=true) order by name;`
+    let subCatQuery = `select id,parent_category_id as categoryid,name as header,last_updated as lastUpdated,
+    date_created as dateCreated, 
+        null as taxCategory,tax_inclusive as taxInclusive,null as taxBasis, null as taxAmount,
+        case when taxable_group_id is null then (select id from taxable_group where tenant_id=${tenantId} order by id limit 1) else taxable_group_id end as taxablegroupid
+        from menu_category mc where tenant_id=${tenantId} and active=true and id not in (select distinct IFNULL(parent_category_id,0) 
+        from menu_category where tenant_id=${tenantId} and active=true);`
+
+    let taxMapQuery = `select tg.tenant_id AS tenant_id,tg.id AS taxable_group_id,tg.name AS group_name,tgr.rate_basis 
+    AS rate_basis,tgr.tax_basis AS tax_basis,tr.name AS name,tr.tax_value AS tax_value,tr.tax_inclusive AS tax_inclusive 
+    from ((taxable_group tg join tax_group_rule tgr) join tax_rate tr) 
+    where ((tg.tenant_id = ${tenantId}) and (tg.id = tgr.taxable_group_id) and (tgr.tax_rate_id = tr.id)) order by tg.id;`
 
 
-let subCatQuery = `select id,parent_category_id as categoryid,name as header,last_updated as lastUpdated,
-date_created as dateCreated, 
-    null as taxCategory,tax_inclusive as taxInclusive,null as taxBasis, null as taxAmount,
-    case when taxable_group_id is null then ${defaultTaxGroup} else taxable_group_id end as taxablegroupid
-    from menu_category mc where tenant_id=${tenantId} and active=true and id not in (select distinct IFNULL(parent_category_id,0) 
-    from menu_category where tenant_id=${tenantId} and active=true);`
-
-let taxMapQuery = `select tg.tenant_id AS tenant_id,tg.id AS taxable_group_id,tg.name AS group_name,tgr.rate_basis 
-AS rate_basis,tgr.tax_basis AS tax_basis,tr.name AS name,tr.tax_value AS tax_value,tr.tax_inclusive AS tax_inclusive 
-from ((taxable_group tg join tax_group_rule tgr) join tax_rate tr) 
-where ((tg.tenant_id = ${tenantId}) and (tg.id = tgr.taxable_group_id) and (tgr.tax_rate_id = tr.id)) order by tg.id;`
+    let itemsQuery = `select id,menu_category_id as categoryid,image as img, name as lable , allow_customization as 
+        allowCustomization,no_of_drinks as noOfDrinks,no_of_side_items as noOfSides,1 as mains
+        ,price, 'INR' as currency,null as 'desc' ,last_updated as lastUpdated,date_created as dateCreated,
+        null as taxCategory,null as taxBasis,null as taxAmount, null as netPrice,null as taxValue 
+        from menu where tenant_id=${tenantId} and active=true;`
 
 
-let itemsQuery = `select id,menu_category_id as categoryid,image as img, name as lable , allow_customization as 
-    allowCustomization,no_of_drinks as noOfDrinks,no_of_side_items as noOfSides,1 as mains
-    ,price, 'AED' as currency,null as 'desc' ,last_updated as lastUpdated,date_created as dateCreated,
-    null as taxCategory,null as taxBasis,null as taxAmount, null as netPrice,null as taxValue 
-    from menu where tenant_id=${tenantId} and active=true;`
 
-export function getCategories(pool) {
+
 
     let parentCats, subCats, taxMaps, items
 
@@ -47,7 +46,7 @@ export function getCategories(pool) {
                     await pool.query(parentCatQuery, async (err, results, fields) => {
                         if (err) {
                             console.error("error  1  ========> " + err);
-                            rej1("Something went wrong!!! Please try again later...1")
+                            rej1(err)
 
                         }
 
@@ -58,7 +57,7 @@ export function getCategories(pool) {
                     })
                 } catch (error) {
                     console.error("error  2  ========> " + error);
-                    rej1("Something went wrong!!! Please try again later...1")
+                    rej1(error)
                 }
             });
 
@@ -68,7 +67,7 @@ export function getCategories(pool) {
 
                     await pool.query(subCatQuery, async (err, results, fields) => {
                         if (err) {
-                            rej2("Something went wrong!!! Please try again later...2")
+                            rej2(err)
 
                         }
 
@@ -83,7 +82,7 @@ export function getCategories(pool) {
 
                     })
                 } catch (error) {
-                    rej2("Something went wrong!!! Please try again later...2")
+                    rej2(error)
                 }
             });
 
@@ -93,7 +92,7 @@ export function getCategories(pool) {
 
                     await pool.query(taxMapQuery, async (err, results, fields) => {
                         if (err) {
-                            rej3("Something went wrong!!! Please try again later...3")
+                            rej3(err)
                         }
                         taxMaps = results
                         taxMaps.forEach(element => {
@@ -102,7 +101,7 @@ export function getCategories(pool) {
                         res3()
                     })
                 } catch (error) {
-                    rej3("Something went wrong!!! Please try again later...3")
+                    rej3(error)
                 }
             });
 
@@ -113,7 +112,7 @@ export function getCategories(pool) {
 
                     await pool.query(itemsQuery, async (err, results, fields) => {
                         if (err) {
-                            rej4("Something went wrong!!! Please try again later...4")
+                            rej4(err)
                         }
                         items = results
                         items.forEach(element => {
@@ -122,7 +121,7 @@ export function getCategories(pool) {
                         res4()
                     })
                 } catch (error) {
-                    rej4("Something went wrong!!! Please try again later...4")
+                    rej4(error)
                 }
             });
 
@@ -220,7 +219,7 @@ export function getCategories(pool) {
             }).catch(err => {
                 console.error("error========> " + err);
 
-                reject("Something went wrong!!! Please try again later...")
+                reject(err)
             });
 
 
@@ -228,14 +227,14 @@ export function getCategories(pool) {
 
         } catch (error) {
             console.error(error);
-            reject("Something went wrong!!! Please try again later...")
+            reject(error)
         }
     })
 }
 
 
 
-export function getItem(id: number, pool) {
+export function getItem(tenantId: number, id: number, pool) {
 
     let subCats, taxMaps, item, menuOptions, menuItem
 
@@ -261,11 +260,23 @@ export function getItem(id: number, pool) {
              from menu_option mo,menu_item mi where mo.menu_id=${id} and mo.menu_item_id=mi.id;`
 
 
-            let menuItemQuery = `select 'MAIN' as menuOptionType,0 as seq,mi.price as addOnPrice,1 as qty,mi.name as menuItemName,
+            let menuItemQuery = `select 'MAIN' as menuOptionType,0 as seq,m.price as addOnPrice,1 as qty,mi.name as menuItemName,
              mi.id as menuItemId,mi.image as imageName,null as 'desc',null as taxCategory,null as taxBasis,0 as taxAmount,
              0 as netPrice,0 as taxValue
-              from menu m,menu_item mi where m.tenant_id=6 and mi.tenant_id=${tenantId} 
+              from menu m,menu_item mi where m.tenant_id=${tenantId} and mi.tenant_id=${tenantId} 
               and m.primary_item_id=mi.id and m.active=true and m.id=${id};`
+
+            let subCatQuery = `select id,parent_category_id as categoryid,name as header,last_updated as lastUpdated,
+              date_created as dateCreated, 
+                  null as taxCategory,tax_inclusive as taxInclusive,null as taxBasis, null as taxAmount,
+                  case when taxable_group_id is null then (select id from taxable_group where tenant_id=${tenantId} order by id limit 1) else taxable_group_id end as taxablegroupid
+                  from menu_category mc where tenant_id=${tenantId} and active=true and id not in (select distinct IFNULL(parent_category_id,0) 
+                  from menu_category where tenant_id=${tenantId} and active=true);`
+
+            let taxMapQuery = `select tg.tenant_id AS tenant_id,tg.id AS taxable_group_id,tg.name AS group_name,tgr.rate_basis 
+                  AS rate_basis,tgr.tax_basis AS tax_basis,tr.name AS name,tr.tax_value AS tax_value,tr.tax_inclusive AS tax_inclusive 
+                  from ((taxable_group tg join tax_group_rule tgr) join tax_rate tr) 
+                  where ((tg.tenant_id = ${tenantId}) and (tg.id = tgr.taxable_group_id) and (tgr.tax_rate_id = tr.id)) order by tg.id;`
 
 
             let menuItemProm = new Promise(async (res0, rej0) => {
@@ -275,7 +286,7 @@ export function getItem(id: number, pool) {
                     await pool.query(menuItemQuery, async (err, results, fields) => {
                         if (err) {
                             console.error("error  0  ========> " + err);
-                            rej0("Something went wrong!!! Please try again later...0")
+                            rej0(err)
 
                         }
 
@@ -292,7 +303,7 @@ export function getItem(id: number, pool) {
                     })
                 } catch (error) {
                     console.error("error  2  ========> " + error);
-                    rej0("Something went wrong!!! Please try again later...1")
+                    rej0(error)
                 }
             });
 
@@ -304,7 +315,7 @@ export function getItem(id: number, pool) {
                     await pool.query(menuOptionQuery, async (err, results, fields) => {
                         if (err) {
                             console.error("error  1  ========> " + err);
-                            rej1("Something went wrong!!! Please try again later...1")
+                            rej1(err)
 
                         }
 
@@ -315,7 +326,7 @@ export function getItem(id: number, pool) {
                     })
                 } catch (error) {
                     console.error("error  2  ========> " + error);
-                    rej1("Something went wrong!!! Please try again later...1")
+                    rej1(error)
                 }
             });
 
@@ -328,7 +339,7 @@ export function getItem(id: number, pool) {
 
                     await pool.query(subCatQuery, async (err, results, fields) => {
                         if (err) {
-                            rej2("Something went wrong!!! Please try again later...2")
+                            rej2(err)
 
                         }
 
@@ -343,7 +354,7 @@ export function getItem(id: number, pool) {
 
                     })
                 } catch (error) {
-                    rej2("Something went wrong!!! Please try again later...2")
+                    rej2(error)
                 }
             });
 
@@ -353,7 +364,7 @@ export function getItem(id: number, pool) {
 
                     await pool.query(taxMapQuery, async (err, results, fields) => {
                         if (err) {
-                            rej3("Something went wrong!!! Please try again later...3")
+                            rej3(err)
                         }
                         taxMaps = results
                         taxMaps.forEach(element => {
@@ -362,7 +373,7 @@ export function getItem(id: number, pool) {
                         res3()
                     })
                 } catch (error) {
-                    rej3("Something went wrong!!! Please try again later...3")
+                    rej3(error)
                 }
             });
 
@@ -373,7 +384,7 @@ export function getItem(id: number, pool) {
 
                     await pool.query(itemQuery, async (err, results, fields) => {
                         if (err) {
-                            rej4("Something went wrong!!! Please try again later...4")
+                            rej4(err)
                         }
 
                         if (results && results.length > 0) {
@@ -391,7 +402,7 @@ export function getItem(id: number, pool) {
 
                     })
                 } catch (error) {
-                    rej4("Something went wrong!!! Please try again later...4")
+                    rej4(error)
                 }
             });
 
@@ -498,7 +509,7 @@ export function getItem(id: number, pool) {
             });
         } catch (error) {
             console.error(error);
-            reject("Something went wrong!!! Please try again later...")
+            reject(error)
         }
     })
 
