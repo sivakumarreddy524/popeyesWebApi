@@ -6,11 +6,13 @@ const express = require('express')
 const serverless = require('serverless-http')
 const bodyParser = require('body-parser')
 const pool = require('./configs/dbConfig')
+var cors = require('cors')
 
 const app = express()
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
+app.use(cors())
 
 setRoutes(app, pool)
 

@@ -1,6 +1,421 @@
 const lodash = require('lodash')
 
 
+export function getMenu(tenantId, pool) {
+
+    let categoriesQuery = `select * from menu_category where tenant_id=${tenantId} and active=true;`
+
+
+
+    let taxMapQuery = `select tg.tenant_id AS tenant_id,tg.id AS taxable_group_id,tr.id as tax_rate_id,tg.name AS group_name,tgr.rate_basis 
+    AS rate_basis,tgr.tax_basis AS tax_basis,tr.name AS name,tr.tax_value AS tax_value,tr.tax_inclusive AS tax_inclusive 
+    from ((taxable_group tg join tax_group_rule tgr) join tax_rate tr) 
+    where ((tg.tenant_id = ${tenantId}) and (tg.id = tgr.taxable_group_id) and (tgr.tax_rate_id = tr.id)) order by tg.id;`
+
+
+    let itemsQuery = `select m.*,mi.name as primary_item_name from menu m,menu_item mi 
+    where m.tenant_id=${tenantId} and mi.tenant_id=${tenantId} and m.primary_item_id=mi.id;`
+
+
+    let profitCenterQuery = `select * from profit_center where tenant_id=${tenantId} order by id limit 1`
+
+
+
+
+
+    let categories, parentCats, subCats, taxes, items, profitCenter = null
+
+
+
+
+
+    return new Promise(async (resolve, reject) => {
+        try {
+
+            let promises = [];
+
+            let categoriesProm = new Promise(async (res1, rej1) => {
+                try {
+                    console.log("categoriesQuery => " + categoriesQuery);
+
+                    await pool.query(categoriesQuery, async (err, results, fields) => {
+                        if (err) {
+                            console.error("error  1  ========> " + err);
+                            rej1(err)
+
+                        }
+
+                        categories = results
+
+                        categories.forEach(element => {
+                            element.tax_inclusive = element.tax_inclusive.lastIndexOf(1) == -1 ? false : true
+                        });
+
+
+
+                        res1()
+
+
+                    })
+                } catch (error) {
+                    console.error("error  2  ========> " + error);
+                    rej1(error)
+                }
+            });
+
+
+            let profitCenterProm = new Promise(async (res2, rej2) => {
+                try {
+                    console.log("profitCenterQuery => " + profitCenterQuery);
+
+                    await pool.query(profitCenterQuery, async (err, results, fields) => {
+                        if (err) {
+                            console.error("error  1  ========> " + err);
+                            rej2(err)
+
+                        }
+
+
+                        if (results && results.length > 0) {
+                            profitCenter = results[0]
+                        }
+
+
+
+
+
+
+                        res2()
+
+
+                    })
+                } catch (error) {
+                    console.error("error  2  ========> " + error);
+                    rej2(error)
+                }
+            });
+
+
+
+            let taxMapProm = new Promise(async (res3, rej3) => {
+                try {
+                    console.log("taxMapQuery => " + taxMapQuery);
+
+                    await pool.query(taxMapQuery, async (err, results, fields) => {
+                        if (err) {
+                            rej3(err)
+                        }
+                        taxes = results
+                        taxes.forEach(element => {
+                            element.tax_inclusive = element.tax_inclusive.lastIndexOf(1) == -1 ? false : true
+                        });
+                        res3()
+                    })
+                } catch (error) {
+                    rej3(error)
+                }
+            });
+
+
+            let itemsProm = new Promise(async (res4, rej4) => {
+                try {
+                    console.log("itemsQuery => " + itemsQuery);
+
+                    await pool.query(itemsQuery, async (err, results, fields) => {
+                        if (err) {
+                            rej4(err)
+                        }
+                        items = results
+
+                        res4()
+                    })
+                } catch (error) {
+                    rej4(error)
+                }
+            });
+
+
+            promises.push(categoriesProm)
+            promises.push(taxMapProm)
+            promises.push(itemsProm)
+            promises.push(profitCenterProm)
+
+
+            Promise.all(promises).then(res => {
+
+                parentCats = lodash.filter(categories, x => x.parent_category_id === null);
+
+
+                subCats = lodash.filter(categories, x => x.parent_category_id != null);
+
+
+
+
+
+                let subCatsMap = new Map()
+                let itemsMap = new Map()
+
+
+                let taxMap = new Map()
+
+
+                taxes.forEach(function (element) {
+                    if (taxMap.has(element.taxable_group_id)) {
+                        taxMap.get(element.taxable_group_id).push(element)
+                    }
+                    else {
+                        taxMap.set(element.taxable_group_id, [])
+                        taxMap.get(element.taxable_group_id).push(element)
+                    }
+                });
+
+
+                items.forEach(function (element) {
+                    if (itemsMap.has(element.menu_category_id)) {
+                        itemsMap.get(element.menu_category_id).push(element)
+                    }
+                    else {
+                        itemsMap.set(element.menu_category_id, [])
+                        itemsMap.get(element.menu_category_id).push(element)
+                    }
+                });
+
+
+
+
+
+
+                subCats.forEach(element => {
+
+                    if (subCatsMap.has(element.parent_category_id)) {
+                        subCatsMap.get(element.parent_category_id).push(element)
+                    }
+                    else {
+                        subCatsMap.set(element.parent_category_id, [])
+                        subCatsMap.get(element.parent_category_id).push(element)
+                    }
+
+                });
+
+
+
+
+
+
+
+
+
+                let obj = []
+
+
+
+                parentCats.forEach(parent => {
+
+                    let cat = {
+                        id: parent.id,
+                        name: parent.name,
+                        img: parent.image,
+                        childCategories: [],
+                        items: []
+                    }
+
+
+
+                    if (subCatsMap.has(parent.id)) {
+
+
+
+                        subCatsMap.get(parent.id).forEach(child => {
+
+                            console.log("parent => " + parent.id + " => " + child);
+
+
+                        })
+
+
+                        subCatsMap.get(parent.id).forEach(child => {
+
+
+                            let subcat = {
+                                id: child.id,
+                                name: child.name,
+                                img: child.image,
+                                childCategories: null,
+                                items: []
+                            }
+
+
+                            if (itemsMap.has(child.id)) {
+
+                                addItems(subcat, child, itemsMap.get(child.id), taxMap, profitCenter)
+
+                            }
+
+
+
+                            cat.childCategories.push(subcat)
+
+
+                        });
+
+
+
+
+
+                    }
+                    else {
+
+                        if (itemsMap.has(parent.id)) {
+
+                            addItems(cat, parent, itemsMap.get(parent.id), taxMap, profitCenter)
+
+                        }
+
+                    }
+
+                    obj.push(cat)
+
+
+
+
+
+                });
+
+
+
+
+
+                resolve(obj)
+
+
+            }).catch(err => {
+                console.error("error========> " + err);
+
+                reject(err)
+            });
+
+
+
+
+        } catch (error) {
+            console.error(error);
+            reject(error)
+        }
+    })
+}
+
+
+export function addItems(cat, category, items, taxMap: Map<any, any>, profitCenter) {
+
+    if (items) {
+
+        items.forEach(item => {
+            let i = {
+                id: item.id,
+                name: item.primary_item_name,
+                img: item.image,
+                price: item.price,
+                tax_inclusive: category.tax_inclusive,
+                taxes: []
+
+            }
+
+
+            if (category.taxable_group_id == null && profitCenter &&
+                profitCenter.taxable_group_id != null && taxMap.has(profitCenter.taxable_group_id)) {
+
+                taxMap.get(profitCenter.taxable_group_id).forEach(tt => {
+
+                    let t = {
+                        tax_rate_id: tt.tax_rate_id,
+                        tax_name: tt.name,
+                        tax_value: tt.tax_value
+
+
+                    }
+
+                    i.taxes.push(t)
+
+                });
+
+
+            }
+            else {
+
+
+                if (category.taxable_group_id != null && taxMap.has(category.taxable_group_id)) {
+
+                    taxMap.get(category.taxable_group_id).forEach(tt => {
+
+                        let t = {
+                            tax_rate_id: tt.tax_rate_id,
+                            tax_name: tt.name,
+                            tax_value: tt.tax_value
+
+
+                        }
+
+                        i.taxes.push(t)
+
+                    });
+
+                }
+
+            }
+
+
+
+
+
+
+            cat.items.push(i)
+
+        });
+
+    }
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export function getCategories(tenantId, pool) {
 
     let parentCatQuery = `select id,name,image from menu_category where tenant_id=${tenantId} and id in 

@@ -1,8 +1,8 @@
 {
   "service": {
-    "service": "PosWebApi",
+    "service": "ChefDeskWebApi",
     "serviceObject": {
-      "name": "PosWebApi"
+      "name": "ChefDeskWebApi"
     },
     "provider": {
       "stage": "prod",
@@ -30,7 +30,7 @@
           "HelloLogGroup": {
             "Type": "AWS::Logs::LogGroup",
             "Properties": {
-              "LogGroupName": "/aws/lambda/PosWebApi-prod-hello"
+              "LogGroupName": "/aws/lambda/ChefDeskWebApi-prod-hello"
             }
           },
           "IamRoleLambdaExecution": {
@@ -59,7 +59,7 @@
                       "-",
                       [
                         "prod",
-                        "PosWebApi",
+                        "ChefDeskWebApi",
                         "lambda"
                       ]
                     ]
@@ -74,7 +74,7 @@
                         ],
                         "Resource": [
                           {
-                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/PosWebApi-prod-hello:*"
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/ChefDeskWebApi-prod-hello:*"
                           }
                         ]
                       },
@@ -85,7 +85,7 @@
                         ],
                         "Resource": [
                           {
-                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/PosWebApi-prod-hello:*:*"
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/ChefDeskWebApi-prod-hello:*:*"
                           }
                         ]
                       }
@@ -98,7 +98,7 @@
                 "Fn::Join": [
                   "-",
                   [
-                    "PosWebApi",
+                    "ChefDeskWebApi",
                     "prod",
                     "us-east-1",
                     "lambdaRole"
@@ -114,9 +114,9 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/PosWebApi/prod/1548765075189-2019-01-29T12:31:15.189Z/PosWebApi.zip"
+                "S3Key": "serverless/ChefDeskWebApi/prod/1551764248809-2019-03-05T05:37:28.809Z/ChefDeskWebApi.zip"
               },
-              "FunctionName": "PosWebApi-prod-hello",
+              "FunctionName": "ChefDeskWebApi-prod-hello",
               "Handler": "handler.hello",
               "MemorySize": 1024,
               "Role": {
@@ -143,20 +143,20 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "HelloLambdaVersion53Gtn7DkIcjKoLyILaMDMXYm3SnWwANecaBKQ9iE": {
+          "HelloLambdaVersion65v4TeSizw7vdQ6dqQBfUyWiycQzXM6V65sz7QQEc": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "HelloLambdaFunction"
               },
-              "CodeSha256": "HLJmCA0BdMgyWl5bnjKbcVYJwWuuZs3kYiCO00JPn+k="
+              "CodeSha256": "2UA7PtewQ7GsZhbU8jEwD0bNYLHnNCwwD/4OPgItkT4="
             }
           },
           "ApiGatewayRestApi": {
             "Type": "AWS::ApiGateway::RestApi",
             "Properties": {
-              "Name": "prod-PosWebApi",
+              "Name": "prod-ChefDeskWebApi",
               "EndpointConfiguration": {
                 "Types": [
                   "EDGE"
@@ -201,6 +201,162 @@
                 "Ref": "ApiGatewayResourceItem"
               },
               "PathPart": "{id}",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayResourceMenu": {
+            "Type": "AWS::ApiGateway::Resource",
+            "Properties": {
+              "ParentId": {
+                "Fn::GetAtt": [
+                  "ApiGatewayRestApi",
+                  "RootResourceId"
+                ]
+              },
+              "PathPart": "menu",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayMethodCategoriesOptions": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "AuthorizationType": "NONE",
+              "HttpMethod": "OPTIONS",
+              "MethodResponses": [
+                {
+                  "StatusCode": "200",
+                  "ResponseParameters": {
+                    "method.response.header.Access-Control-Allow-Origin": true,
+                    "method.response.header.Access-Control-Allow-Headers": true,
+                    "method.response.header.Access-Control-Allow-Methods": true,
+                    "method.response.header.Access-Control-Allow-Credentials": true
+                  },
+                  "ResponseModels": {}
+                }
+              ],
+              "RequestParameters": {},
+              "Integration": {
+                "Type": "MOCK",
+                "RequestTemplates": {
+                  "application/json": "{statusCode:200}"
+                },
+                "ContentHandling": "CONVERT_TO_TEXT",
+                "IntegrationResponses": [
+                  {
+                    "StatusCode": "200",
+                    "ResponseParameters": {
+                      "method.response.header.Access-Control-Allow-Origin": "'*'",
+                      "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                      "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET'",
+                      "method.response.header.Access-Control-Allow-Credentials": "'false'"
+                    },
+                    "ResponseTemplates": {
+                      "application/json": ""
+                    }
+                  }
+                ]
+              },
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceCategories"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayMethodItemIdVarOptions": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "AuthorizationType": "NONE",
+              "HttpMethod": "OPTIONS",
+              "MethodResponses": [
+                {
+                  "StatusCode": "200",
+                  "ResponseParameters": {
+                    "method.response.header.Access-Control-Allow-Origin": true,
+                    "method.response.header.Access-Control-Allow-Headers": true,
+                    "method.response.header.Access-Control-Allow-Methods": true,
+                    "method.response.header.Access-Control-Allow-Credentials": true
+                  },
+                  "ResponseModels": {}
+                }
+              ],
+              "RequestParameters": {},
+              "Integration": {
+                "Type": "MOCK",
+                "RequestTemplates": {
+                  "application/json": "{statusCode:200}"
+                },
+                "ContentHandling": "CONVERT_TO_TEXT",
+                "IntegrationResponses": [
+                  {
+                    "StatusCode": "200",
+                    "ResponseParameters": {
+                      "method.response.header.Access-Control-Allow-Origin": "'*'",
+                      "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                      "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET'",
+                      "method.response.header.Access-Control-Allow-Credentials": "'false'"
+                    },
+                    "ResponseTemplates": {
+                      "application/json": ""
+                    }
+                  }
+                ]
+              },
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceItemIdVar"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayMethodMenuOptions": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "AuthorizationType": "NONE",
+              "HttpMethod": "OPTIONS",
+              "MethodResponses": [
+                {
+                  "StatusCode": "200",
+                  "ResponseParameters": {
+                    "method.response.header.Access-Control-Allow-Origin": true,
+                    "method.response.header.Access-Control-Allow-Headers": true,
+                    "method.response.header.Access-Control-Allow-Methods": true,
+                    "method.response.header.Access-Control-Allow-Credentials": true
+                  },
+                  "ResponseModels": {}
+                }
+              ],
+              "RequestParameters": {},
+              "Integration": {
+                "Type": "MOCK",
+                "RequestTemplates": {
+                  "application/json": "{statusCode:200}"
+                },
+                "ContentHandling": "CONVERT_TO_TEXT",
+                "IntegrationResponses": [
+                  {
+                    "StatusCode": "200",
+                    "ResponseParameters": {
+                      "method.response.header.Access-Control-Allow-Origin": "'*'",
+                      "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                      "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET'",
+                      "method.response.header.Access-Control-Allow-Credentials": "'false'"
+                    },
+                    "ResponseTemplates": {
+                      "application/json": ""
+                    }
+                  }
+                ]
+              },
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceMenu"
+              },
               "RestApiId": {
                 "Ref": "ApiGatewayRestApi"
               }
@@ -295,7 +451,50 @@
               "MethodResponses": []
             }
           },
-          "ApiGatewayDeployment1548765075213": {
+          "ApiGatewayMethodMenuGet": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "HttpMethod": "GET",
+              "RequestParameters": {},
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceMenu"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "ApiKeyRequired": false,
+              "AuthorizationType": "NONE",
+              "Integration": {
+                "IntegrationHttpMethod": "POST",
+                "Type": "AWS_PROXY",
+                "Uri": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":lambda:path/2015-03-31/functions/",
+                      {
+                        "Fn::GetAtt": [
+                          "HelloLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "/invocations"
+                    ]
+                  ]
+                }
+              },
+              "MethodResponses": []
+            }
+          },
+          "ApiGatewayDeployment1551764248840": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -304,8 +503,12 @@
               "StageName": "prod"
             },
             "DependsOn": [
+              "ApiGatewayMethodCategoriesOptions",
+              "ApiGatewayMethodItemIdVarOptions",
+              "ApiGatewayMethodMenuOptions",
               "ApiGatewayMethodCategoriesGet",
-              "ApiGatewayMethodItemIdVarGet"
+              "ApiGatewayMethodItemIdVarGet",
+              "ApiGatewayMethodMenuGet"
             ]
           },
           "HelloLambdaPermissionApiGateway": {
@@ -365,7 +568,7 @@
           "HelloLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "HelloLambdaVersion53Gtn7DkIcjKoLyILaMDMXYm3SnWwANecaBKQ9iE"
+              "Ref": "HelloLambdaVersion65v4TeSizw7vdQ6dqQBfUyWiycQzXM6V65sz7QQEc"
             }
           },
           "ServiceEndpoint": {
@@ -426,6 +629,25 @@
                   "tenantId": true
                 }
               },
+              "cors": {
+                "origins": [
+                  "*"
+                ],
+                "origin": "*",
+                "methods": [
+                  "OPTIONS",
+                  "GET"
+                ],
+                "headers": [
+                  "Content-Type",
+                  "X-Amz-Date",
+                  "Authorization",
+                  "X-Api-Key",
+                  "X-Amz-Security-Token",
+                  "X-Amz-User-Agent"
+                ],
+                "allowCredentials": false
+              },
               "integration": "AWS_PROXY"
             }
           },
@@ -439,13 +661,63 @@
                   "method.request.path.id": true
                 }
               },
+              "cors": {
+                "origins": [
+                  "*"
+                ],
+                "origin": "*",
+                "methods": [
+                  "OPTIONS",
+                  "GET"
+                ],
+                "headers": [
+                  "Content-Type",
+                  "X-Amz-Date",
+                  "Authorization",
+                  "X-Api-Key",
+                  "X-Amz-Security-Token",
+                  "X-Amz-User-Agent"
+                ],
+                "allowCredentials": false
+              },
+              "integration": "AWS_PROXY"
+            }
+          },
+          {
+            "http": {
+              "method": "get",
+              "path": "menu",
+              "parameters": {
+                "querystrings": {
+                  "tenantId": true
+                }
+              },
+              "cors": {
+                "origins": [
+                  "*"
+                ],
+                "origin": "*",
+                "methods": [
+                  "OPTIONS",
+                  "GET"
+                ],
+                "headers": [
+                  "Content-Type",
+                  "X-Amz-Date",
+                  "Authorization",
+                  "X-Api-Key",
+                  "X-Amz-Security-Token",
+                  "X-Amz-User-Agent"
+                ],
+                "allowCredentials": false
+              },
               "integration": "AWS_PROXY"
             }
           }
         ],
-        "name": "PosWebApi-prod-hello",
+        "name": "ChefDeskWebApi-prod-hello",
         "package": {
-          "artifact": ".serverless\\PosWebApi.zip"
+          "artifact": ".serverless\\ChefDeskWebApi.zip"
         },
         "memory": 1024,
         "timeout": 6,
@@ -455,7 +727,7 @@
     }
   },
   "package": {
-    "artifactDirectoryName": "serverless/PosWebApi/prod/1548765075189-2019-01-29T12:31:15.189Z",
+    "artifactDirectoryName": "serverless/ChefDeskWebApi/prod/1551764248809-2019-03-05T05:37:28.809Z",
     "artifact": ""
   }
 }
