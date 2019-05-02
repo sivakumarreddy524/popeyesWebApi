@@ -7,7 +7,7 @@
     "provider": {
       "stage": "prod",
       "region": "us-east-1",
-      "variableSyntax": "\\${([ ~:a-zA-Z0-9._'\",\\-\\/\\(\\)]+?)}",
+      "variableSyntax": "\\${([ ~:a-zA-Z0-9._@'\",\\-\\/\\(\\)]+?)}",
       "name": "aws",
       "runtime": "nodejs8.10",
       "environment": {
@@ -25,7 +25,18 @@
         "Description": "The AWS CloudFormation template for this Serverless application",
         "Resources": {
           "ServerlessDeploymentBucket": {
-            "Type": "AWS::S3::Bucket"
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+              "BucketEncryption": {
+                "ServerSideEncryptionConfiguration": [
+                  {
+                    "ServerSideEncryptionByDefault": {
+                      "SSEAlgorithm": "AES256"
+                    }
+                  }
+                ]
+              }
+            }
           },
           "HelloLogGroup": {
             "Type": "AWS::Logs::LogGroup",
@@ -114,7 +125,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/ChefDeskWebApi/prod/1551764248809-2019-03-05T05:37:28.809Z/ChefDeskWebApi.zip"
+                "S3Key": "serverless/ChefDeskWebApi/prod/1556781455191-2019-05-02T07:17:35.191Z/ChefDeskWebApi.zip"
               },
               "FunctionName": "ChefDeskWebApi-prod-hello",
               "Handler": "handler.hello",
@@ -143,14 +154,14 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "HelloLambdaVersion65v4TeSizw7vdQ6dqQBfUyWiycQzXM6V65sz7QQEc": {
+          "HelloLambdaVersionRv8hb15DEsvK5MIHzX6hx4LtaBh0olp7i7qmMev6as": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "HelloLambdaFunction"
               },
-              "CodeSha256": "2UA7PtewQ7GsZhbU8jEwD0bNYLHnNCwwD/4OPgItkT4="
+              "CodeSha256": "0Mx4181vYvJzW4IRZ2XMmxBRJSi2PWYnXne4yv9ucx8="
             }
           },
           "ApiGatewayRestApi": {
@@ -255,7 +266,7 @@
                       "method.response.header.Access-Control-Allow-Credentials": "'false'"
                     },
                     "ResponseTemplates": {
-                      "application/json": ""
+                      "application/json": "#set($origin = $input.params(\"Origin\"))\n#if($origin == \"\") #set($origin = $input.params(\"origin\")) #end\n#if($origin == \"*\") #set($context.responseOverride.header.Access-Control-Allow-Origin = $origin) #end"
                     }
                   }
                 ]
@@ -302,7 +313,7 @@
                       "method.response.header.Access-Control-Allow-Credentials": "'false'"
                     },
                     "ResponseTemplates": {
-                      "application/json": ""
+                      "application/json": "#set($origin = $input.params(\"Origin\"))\n#if($origin == \"\") #set($origin = $input.params(\"origin\")) #end\n#if($origin == \"*\") #set($context.responseOverride.header.Access-Control-Allow-Origin = $origin) #end"
                     }
                   }
                 ]
@@ -349,7 +360,7 @@
                       "method.response.header.Access-Control-Allow-Credentials": "'false'"
                     },
                     "ResponseTemplates": {
-                      "application/json": ""
+                      "application/json": "#set($origin = $input.params(\"Origin\"))\n#if($origin == \"\") #set($origin = $input.params(\"origin\")) #end\n#if($origin == \"*\") #set($context.responseOverride.header.Access-Control-Allow-Origin = $origin) #end"
                     }
                   }
                 ]
@@ -494,7 +505,7 @@
               "MethodResponses": []
             }
           },
-          "ApiGatewayDeployment1551764248840": {
+          "ApiGatewayDeployment1556781455262": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -568,7 +579,7 @@
           "HelloLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "HelloLambdaVersion65v4TeSizw7vdQ6dqQBfUyWiycQzXM6V65sz7QQEc"
+              "Ref": "HelloLambdaVersionRv8hb15DEsvK5MIHzX6hx4LtaBh0olp7i7qmMev6as"
             }
           },
           "ServiceEndpoint": {
@@ -597,7 +608,18 @@
         "Description": "The AWS CloudFormation template for this Serverless application",
         "Resources": {
           "ServerlessDeploymentBucket": {
-            "Type": "AWS::S3::Bucket"
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+              "BucketEncryption": {
+                "ServerSideEncryptionConfiguration": [
+                  {
+                    "ServerSideEncryptionByDefault": {
+                      "SSEAlgorithm": "AES256"
+                    }
+                  }
+                ]
+              }
+            }
           }
         },
         "Outputs": {
@@ -724,10 +746,11 @@
         "runtime": "nodejs8.10",
         "vpc": {}
       }
-    }
+    },
+    "layers": {}
   },
   "package": {
-    "artifactDirectoryName": "serverless/ChefDeskWebApi/prod/1551764248809-2019-03-05T05:37:28.809Z",
+    "artifactDirectoryName": "serverless/ChefDeskWebApi/prod/1556781455191-2019-05-02T07:17:35.191Z",
     "artifact": ""
   }
 }

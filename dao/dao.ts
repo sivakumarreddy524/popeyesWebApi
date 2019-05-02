@@ -13,7 +13,7 @@ export function getMenu(tenantId, pool) {
     where ((tg.tenant_id = ${tenantId}) and (tg.id = tgr.taxable_group_id) and (tgr.tax_rate_id = tr.id)) order by tg.id;`
 
 
-    let itemsQuery = `select m.*,mi.name as primary_item_name from menu m,menu_item mi 
+    let itemsQuery = `select m.*,mi.name as primary_item_name,mi.external_reference_no from menu m,menu_item mi 
     where m.tenant_id=${tenantId} and mi.tenant_id=${tenantId} and m.primary_item_id=mi.id;`
 
 
@@ -315,6 +315,8 @@ export function addItems(cat, category, items, taxMap: Map<any, any>, profitCent
                 name: item.primary_item_name,
                 img: item.image,
                 price: item.price,
+                priority: item.priority,
+                foodType: item.external_reference_no,
                 tax_inclusive: category.tax_inclusive,
                 taxes: []
 
