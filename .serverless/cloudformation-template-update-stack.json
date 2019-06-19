@@ -103,7 +103,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/ChefDeskWebApi/prod/1556781455191-2019-05-02T07:17:35.191Z/ChefDeskWebApi.zip"
+          "S3Key": "serverless/ChefDeskWebApi/prod/1560939541983-2019-06-19T10:19:01.983Z/ChefDeskWebApi.zip"
         },
         "FunctionName": "ChefDeskWebApi-prod-hello",
         "Handler": "handler.hello",
@@ -132,14 +132,14 @@
         "IamRoleLambdaExecution"
       ]
     },
-    "HelloLambdaVersionRv8hb15DEsvK5MIHzX6hx4LtaBh0olp7i7qmMev6as": {
+    "HelloLambdaVersionhXCGjcWlabDRnlknBrbnZ1z3Tyfli7rI8XlLIz4dLo": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "HelloLambdaFunction"
         },
-        "CodeSha256": "0Mx4181vYvJzW4IRZ2XMmxBRJSi2PWYnXne4yv9ucx8="
+        "CodeSha256": "KGQqaZZNeQakjyZUGBfoySJtb6E+2xd4n+3BHtsTcwU="
       }
     },
     "ApiGatewayRestApi": {
@@ -483,7 +483,7 @@
         "MethodResponses": []
       }
     },
-    "ApiGatewayDeployment1556781455262": {
+    "ApiGatewayDeployment1560939542046": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
@@ -557,7 +557,7 @@
     "HelloLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "HelloLambdaVersionRv8hb15DEsvK5MIHzX6hx4LtaBh0olp7i7qmMev6as"
+        "Ref": "HelloLambdaVersionhXCGjcWlabDRnlknBrbnZ1z3Tyfli7rI8XlLIz4dLo"
       }
     },
     "ServiceEndpoint": {

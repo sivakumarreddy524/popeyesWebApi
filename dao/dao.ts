@@ -318,6 +318,7 @@ export function addItems(cat, category, items, taxMap: Map<any, any>, profitCent
                 priority: item.priority,
                 foodType: item.external_reference_no,
                 tax_inclusive: category.tax_inclusive,
+                alt_name: item.alt_name,
                 taxes: []
 
             }
