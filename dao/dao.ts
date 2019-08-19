@@ -14,7 +14,7 @@ export function getMenu(tenantId, pool) {
 
 
     let itemsQuery = `select m.*,mi.name as primary_item_name,mi.external_reference_no,mi.alt_name,mi.item_code from menu m,menu_item mi 
-    where m.tenant_id=${tenantId} and mi.tenant_id=${tenantId} and m.primary_item_id=mi.id;`
+    where m.tenant_id=${tenantId} and mi.tenant_id=${tenantId} and m.primary_item_id=mi.id and mi.active=true and m.active=true;`
 
 
     let profitCenterQuery = `select * from profit_center where tenant_id=${tenantId} order by id limit 1`

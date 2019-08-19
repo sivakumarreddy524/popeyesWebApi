@@ -125,7 +125,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/ChefDeskWebApi/prod/1560939541983-2019-06-19T10:19:01.983Z/ChefDeskWebApi.zip"
+                "S3Key": "serverless/ChefDeskWebApi/prod/1566200207850-2019-08-19T07:36:47.850Z/ChefDeskWebApi.zip"
               },
               "FunctionName": "ChefDeskWebApi-prod-hello",
               "Handler": "handler.hello",
@@ -154,14 +154,14 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "HelloLambdaVersionhXCGjcWlabDRnlknBrbnZ1z3Tyfli7rI8XlLIz4dLo": {
+          "HelloLambdaVersionsmfim34TCh8zEHMfniB7yOQPo81SE0WF2IfxlI3n3Hk": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "HelloLambdaFunction"
               },
-              "CodeSha256": "KGQqaZZNeQakjyZUGBfoySJtb6E+2xd4n+3BHtsTcwU="
+              "CodeSha256": "wVNPYIGcNhA7FNFvq0Syfbzq/4GfHM6MNlR9RzZOJwE="
             }
           },
           "ApiGatewayRestApi": {
@@ -505,7 +505,7 @@
               "MethodResponses": []
             }
           },
-          "ApiGatewayDeployment1560939542046": {
+          "ApiGatewayDeployment1566200208030": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -579,7 +579,7 @@
           "HelloLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "HelloLambdaVersionhXCGjcWlabDRnlknBrbnZ1z3Tyfli7rI8XlLIz4dLo"
+              "Ref": "HelloLambdaVersionsmfim34TCh8zEHMfniB7yOQPo81SE0WF2IfxlI3n3Hk"
             }
           },
           "ServiceEndpoint": {
@@ -750,7 +750,7 @@
     "layers": {}
   },
   "package": {
-    "artifactDirectoryName": "serverless/ChefDeskWebApi/prod/1560939541983-2019-06-19T10:19:01.983Z",
+    "artifactDirectoryName": "serverless/ChefDeskWebApi/prod/1566200207850-2019-08-19T07:36:47.850Z",
     "artifact": ""
   }
 }
