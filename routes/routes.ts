@@ -119,7 +119,7 @@ export default function setRoutes(app, pool) {
     router.route('/menu').get(async (req, res) => {
 
         let tenantId = req.query.tenantId
-       // let profitCenterId = req.query.profitCenterId
+        // let profitCenterId = req.query.profitCenterId
 
         if (!tenantId) {
             res.status(500).json({
@@ -134,6 +134,56 @@ export default function setRoutes(app, pool) {
 
         try {
             dao.getMenu(tenantId, pool).then(
+                resp => {
+                    res.status(200).json(resp);
+                },
+                err => {
+                    res.status(500).json({
+                        status: 'error',
+                        error: err
+                    });
+                })
+                .catch(e => {
+                    res.status(500).json({
+                        status: 'error',
+                        error: e
+                    });
+                });
+
+        } catch (error) {
+            // logger.error(error);
+            res.status(500).json({
+                status: 'error',
+                error: error.message
+            });
+
+        }
+
+
+    })
+
+
+
+    router.route('/menuByProfitCenter').get(async (req, res) => {
+
+        let tenantId = req.query.tenantId
+        let branchId = req.query.branchId
+        let profitCenterId = req.query.profitCenterId
+        // let profitCenterId = req.query.profitCenterId
+
+        if (!tenantId || !branchId || !profitCenterId) {
+            res.status(500).json({
+                status: 'error',
+                error: 'Parameter not found'
+            });
+
+            return
+        }
+
+
+
+        try {
+            dao.getMenuByProfitCenter(tenantId, branchId, profitCenterId, pool).then(
                 resp => {
                     res.status(200).json(resp);
                 },

@@ -1,3 +1,6 @@
+#sls offline start ---- to start in offline mode
+#sls deploy --stage prod  ------ to deploy app in aws
+
 service:
   name: ChefDeskWebApi
 
@@ -42,3 +45,11 @@ functions:
             querystrings:
               tenantId: true
           cors: true
+      - http:
+          method: get
+          path: menuByProfitCenter
+          parameters:
+            querystrings:
+              tenantId: true
+              branchId: true
+              profitCenterId: true

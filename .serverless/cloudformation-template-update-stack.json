@@ -103,7 +103,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/ChefDeskWebApi/prod/1566200207850-2019-08-19T07:36:47.850Z/ChefDeskWebApi.zip"
+          "S3Key": "serverless/ChefDeskWebApi/prod/1576566728003-2019-12-17T07:12:08.003Z/ChefDeskWebApi.zip"
         },
         "FunctionName": "ChefDeskWebApi-prod-hello",
         "Handler": "handler.hello",
@@ -132,14 +132,14 @@
         "IamRoleLambdaExecution"
       ]
     },
-    "HelloLambdaVersionsmfim34TCh8zEHMfniB7yOQPo81SE0WF2IfxlI3n3Hk": {
+    "HelloLambdaVersion2nW0QiyzIdKkbaqo4zRJwTWZpMQ02Qg1nT4hOs6EUU": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "HelloLambdaFunction"
         },
-        "CodeSha256": "wVNPYIGcNhA7FNFvq0Syfbzq/4GfHM6MNlR9RzZOJwE="
+        "CodeSha256": "XqBhCb9WcaBIlqpeDvIDCQeCDOYwb8xWOCABxrw1e+A="
       }
     },
     "ApiGatewayRestApi": {
@@ -205,6 +205,21 @@
           ]
         },
         "PathPart": "menu",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayResourceMenubyprofitcenter": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "ApiGatewayRestApi",
+            "RootResourceId"
+          ]
+        },
+        "PathPart": "menuByProfitCenter",
         "RestApiId": {
           "Ref": "ApiGatewayRestApi"
         }
@@ -483,7 +498,50 @@
         "MethodResponses": []
       }
     },
-    "ApiGatewayDeployment1566200208030": {
+    "ApiGatewayMethodMenubyprofitcenterGet": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "GET",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceMenubyprofitcenter"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "HelloLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      }
+    },
+    "ApiGatewayDeployment1576566728029": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
@@ -497,7 +555,8 @@
         "ApiGatewayMethodMenuOptions",
         "ApiGatewayMethodCategoriesGet",
         "ApiGatewayMethodItemIdVarGet",
-        "ApiGatewayMethodMenuGet"
+        "ApiGatewayMethodMenuGet",
+        "ApiGatewayMethodMenubyprofitcenterGet"
       ]
     },
     "HelloLambdaPermissionApiGateway": {
@@ -557,7 +616,7 @@
     "HelloLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "HelloLambdaVersionsmfim34TCh8zEHMfniB7yOQPo81SE0WF2IfxlI3n3Hk"
+        "Ref": "HelloLambdaVersion2nW0QiyzIdKkbaqo4zRJwTWZpMQ02Qg1nT4hOs6EUU"
       }
     },
     "ServiceEndpoint": {
