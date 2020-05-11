@@ -125,7 +125,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/ChefDeskWebApi/prod/1576566728003-2019-12-17T07:12:08.003Z/ChefDeskWebApi.zip"
+                "S3Key": "serverless/ChefDeskWebApi/prod/1579241195934-2020-01-17T06:06:35.934Z/ChefDeskWebApi.zip"
               },
               "FunctionName": "ChefDeskWebApi-prod-hello",
               "Handler": "handler.hello",
@@ -154,14 +154,14 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "HelloLambdaVersion2nW0QiyzIdKkbaqo4zRJwTWZpMQ02Qg1nT4hOs6EUU": {
+          "HelloLambdaVersion5j1ygs2y7uv0X5JeXs4ggyQXktE6PPKhSLY3c9lg": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "HelloLambdaFunction"
               },
-              "CodeSha256": "XqBhCb9WcaBIlqpeDvIDCQeCDOYwb8xWOCABxrw1e+A="
+              "CodeSha256": "9gq3HI7Uml7MdP/rGaYeYSPB8Jmdt1vT8q/FIKpzc0Y="
             }
           },
           "ApiGatewayRestApi": {
@@ -563,7 +563,7 @@
               "MethodResponses": []
             }
           },
-          "ApiGatewayDeployment1576566728029": {
+          "ApiGatewayDeployment1579241195966": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -638,7 +638,7 @@
           "HelloLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "HelloLambdaVersion2nW0QiyzIdKkbaqo4zRJwTWZpMQ02Qg1nT4hOs6EUU"
+              "Ref": "HelloLambdaVersion5j1ygs2y7uv0X5JeXs4ggyQXktE6PPKhSLY3c9lg"
             }
           },
           "ServiceEndpoint": {
@@ -823,7 +823,7 @@
     "layers": {}
   },
   "package": {
-    "artifactDirectoryName": "serverless/ChefDeskWebApi/prod/1576566728003-2019-12-17T07:12:08.003Z",
+    "artifactDirectoryName": "serverless/ChefDeskWebApi/prod/1579241195934-2020-01-17T06:06:35.934Z",
     "artifact": ""
   }
 }

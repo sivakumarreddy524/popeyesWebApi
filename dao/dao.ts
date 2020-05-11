@@ -1,10 +1,9 @@
 const lodash = require('lodash')
 export function getMenuByProfitCenter(tenantId, branchId, profitCenterId, pool) {
 
-    let categoriesQuery = `select mc.* from menu_category mc , branch_profit_center_menu_category bmc  
+    let categoriesQuery = `select mc.*,bmc.active as pactive from menu_category mc , branch_profit_center_menu_category bmc  
     where mc.tenant_id=${tenantId} 
     and bmc.menu_category_id = mc.id
-    and bmc.active=true
     and bmc.branch_id = ${branchId}
     and bmc.profit_center_id = ${profitCenterId};`
 
@@ -16,10 +15,11 @@ export function getMenuByProfitCenter(tenantId, branchId, profitCenterId, pool) 
     where ((tg.tenant_id = ${tenantId}) and (tg.id = tgr.taxable_group_id) and (tgr.tax_rate_id = tr.id)) order by tg.id;`
 
 
-    let itemsQuery = `select m.*,mi.name as primary_item_name,mi.external_reference_no,mi.alt_name,mi.item_code,bpmc.price as pprice from menu_item mi ,menu m
+    let itemsQuery = `select m.*,mi.name as primary_item_name,mi.external_reference_no,mi.alt_name,mi.item_code,bpmc.price as pprice,bpmc.active as pactive from menu_item mi ,menu m
     inner join  
     branch_profit_center_menu bpmc ON bpmc.menu_id = m.id
-    where m.tenant_id=${tenantId} and mi.tenant_id=${tenantId} and m.primary_item_id=mi.id and bpmc.active=true and bpmc.branch_id=${branchId} and
+    where m.tenant_id=${tenantId} and mi.tenant_id=${tenantId} and m.primary_item_id=mi.id  and bpmc.branch_id=${branchId} and
+    bpmc.active=true and
     bpmc.profit_center_id=${profitCenterId};`
 
 
@@ -53,8 +53,10 @@ export function getMenuByProfitCenter(tenantId, branchId, profitCenterId, pool) 
 
                         categories = results
 
+
                         categories.forEach(element => {
                             element.tax_inclusive = element.tax_inclusive.lastIndexOf(1) == -1 ? false : true
+                            element.active = element.pactive.lastIndexOf(1) == -1 ? false : true
                         });
 
 
@@ -135,6 +137,7 @@ export function getMenuByProfitCenter(tenantId, branchId, profitCenterId, pool) 
 
                         items.forEach(element => {
                             element.price = element.pprice
+                            element.active = element.pactive.lastIndexOf(1) == -1 ? false : true
                         });
 
                         res4()
@@ -225,6 +228,7 @@ export function getMenuByProfitCenter(tenantId, branchId, profitCenterId, pool) 
                         id: parent.id,
                         name: parent.name,
                         img: parent.image,
+                        active: parent.active,
                         childCategories: [],
                         items: []
                     }
@@ -250,6 +254,7 @@ export function getMenuByProfitCenter(tenantId, branchId, profitCenterId, pool) 
                                 id: child.id,
                                 name: child.name,
                                 img: child.image,
+                                active: child.active,
                                 childCategories: null,
                                 items: []
                             }
@@ -631,6 +636,7 @@ export function addItems(cat, category, items, taxMap: Map<any, any>, profitCent
                 id: item.id,
                 name: item.primary_item_name,
                 img: item.image,
+                active: item.active,
                 price: item.price,
                 priority: item.priority,
                 foodType: item.external_reference_no,
