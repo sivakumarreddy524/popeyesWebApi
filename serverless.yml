@@ -12,7 +12,7 @@ plugins:
 
 provider:
   name: aws
-  runtime: nodejs8.10
+  runtime: nodejs10.x
   stage: prod
   region: us-east-1
   environment: ${file(./env.yml):${opt:stage, self:provider.stage}}
@@ -53,3 +53,11 @@ functions:
               tenantId: true
               branchId: true
               profitCenterId: true
+      - http:
+          method: get
+          path: uploadToDotPe
+          parameters:
+            querystrings:
+              tenantCode: true
+              branchCode: true
+          cors: true

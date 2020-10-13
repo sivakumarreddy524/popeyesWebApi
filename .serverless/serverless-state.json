@@ -9,14 +9,15 @@
       "region": "us-east-1",
       "variableSyntax": "\\${([ ~:a-zA-Z0-9._@'\",\\-\\/\\(\\)]+?)}",
       "name": "aws",
-      "runtime": "nodejs8.10",
+      "runtime": "nodejs10.x",
       "environment": {
         "host": "erpdirectinstance-epos-cluster.cluster-cwqcnccugfdx.us-east-1.rds.amazonaws.com",
-        "user": "root",
-        "password": "Bits1234",
+        "user": "menusync",
+        "password": "menusync-123",
         "database": "posdirectdb2",
         "tenantid": 2,
-        "defaultTaxGroup": 1
+        "defaultTaxGroup": 1,
+        "dotpeurl": "http://stage.api.dotpe.in"
       },
       "versionFunctions": true,
       "remoteFunctionData": null,
@@ -125,7 +126,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/ChefDeskWebApi/prod/1579241195934-2020-01-17T06:06:35.934Z/ChefDeskWebApi.zip"
+                "S3Key": "serverless/ChefDeskWebApi/prod/1601623776801-2020-10-02T07:29:36.801Z/ChefDeskWebApi.zip"
               },
               "FunctionName": "ChefDeskWebApi-prod-hello",
               "Handler": "handler.hello",
@@ -136,16 +137,17 @@
                   "Arn"
                 ]
               },
-              "Runtime": "nodejs8.10",
+              "Runtime": "nodejs10.x",
               "Timeout": 6,
               "Environment": {
                 "Variables": {
                   "host": "erpdirectinstance-epos-cluster.cluster-cwqcnccugfdx.us-east-1.rds.amazonaws.com",
-                  "user": "root",
-                  "password": "Bits1234",
+                  "user": "menusync",
+                  "password": "menusync-123",
                   "database": "posdirectdb2",
                   "tenantid": 2,
-                  "defaultTaxGroup": 1
+                  "defaultTaxGroup": 1,
+                  "dotpeurl": "http://stage.api.dotpe.in"
                 }
               }
             },
@@ -154,14 +156,14 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "HelloLambdaVersion5j1ygs2y7uv0X5JeXs4ggyQXktE6PPKhSLY3c9lg": {
+          "HelloLambdaVersionPiH6KZgcqnw0D8ivUOEknaDhhnaZQKZYP3DgDJrnvs": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "HelloLambdaFunction"
               },
-              "CodeSha256": "9gq3HI7Uml7MdP/rGaYeYSPB8Jmdt1vT8q/FIKpzc0Y="
+              "CodeSha256": "0giIWbHrJdVE5lq77r296kdjp6nK40kdvJPYZK1CkrY="
             }
           },
           "ApiGatewayRestApi": {
@@ -242,6 +244,21 @@
                 ]
               },
               "PathPart": "menuByProfitCenter",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayResourceUploadtodotpe": {
+            "Type": "AWS::ApiGateway::Resource",
+            "Properties": {
+              "ParentId": {
+                "Fn::GetAtt": [
+                  "ApiGatewayRestApi",
+                  "RootResourceId"
+                ]
+              },
+              "PathPart": "uploadToDotPe",
               "RestApiId": {
                 "Ref": "ApiGatewayRestApi"
               }
@@ -382,6 +399,53 @@
               },
               "ResourceId": {
                 "Ref": "ApiGatewayResourceMenu"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayMethodUploadtodotpeOptions": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "AuthorizationType": "NONE",
+              "HttpMethod": "OPTIONS",
+              "MethodResponses": [
+                {
+                  "StatusCode": "200",
+                  "ResponseParameters": {
+                    "method.response.header.Access-Control-Allow-Origin": true,
+                    "method.response.header.Access-Control-Allow-Headers": true,
+                    "method.response.header.Access-Control-Allow-Methods": true,
+                    "method.response.header.Access-Control-Allow-Credentials": true
+                  },
+                  "ResponseModels": {}
+                }
+              ],
+              "RequestParameters": {},
+              "Integration": {
+                "Type": "MOCK",
+                "RequestTemplates": {
+                  "application/json": "{statusCode:200}"
+                },
+                "ContentHandling": "CONVERT_TO_TEXT",
+                "IntegrationResponses": [
+                  {
+                    "StatusCode": "200",
+                    "ResponseParameters": {
+                      "method.response.header.Access-Control-Allow-Origin": "'*'",
+                      "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                      "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET'",
+                      "method.response.header.Access-Control-Allow-Credentials": "'false'"
+                    },
+                    "ResponseTemplates": {
+                      "application/json": "#set($origin = $input.params(\"Origin\"))\n#if($origin == \"\") #set($origin = $input.params(\"origin\")) #end\n#if($origin == \"*\") #set($context.responseOverride.header.Access-Control-Allow-Origin = $origin) #end"
+                    }
+                  }
+                ]
+              },
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceUploadtodotpe"
               },
               "RestApiId": {
                 "Ref": "ApiGatewayRestApi"
@@ -563,7 +627,50 @@
               "MethodResponses": []
             }
           },
-          "ApiGatewayDeployment1579241195966": {
+          "ApiGatewayMethodUploadtodotpeGet": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "HttpMethod": "GET",
+              "RequestParameters": {},
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceUploadtodotpe"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "ApiKeyRequired": false,
+              "AuthorizationType": "NONE",
+              "Integration": {
+                "IntegrationHttpMethod": "POST",
+                "Type": "AWS_PROXY",
+                "Uri": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":lambda:path/2015-03-31/functions/",
+                      {
+                        "Fn::GetAtt": [
+                          "HelloLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "/invocations"
+                    ]
+                  ]
+                }
+              },
+              "MethodResponses": []
+            }
+          },
+          "ApiGatewayDeployment1601623776850": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -575,10 +682,12 @@
               "ApiGatewayMethodCategoriesOptions",
               "ApiGatewayMethodItemIdVarOptions",
               "ApiGatewayMethodMenuOptions",
+              "ApiGatewayMethodUploadtodotpeOptions",
               "ApiGatewayMethodCategoriesGet",
               "ApiGatewayMethodItemIdVarGet",
               "ApiGatewayMethodMenuGet",
-              "ApiGatewayMethodMenubyprofitcenterGet"
+              "ApiGatewayMethodMenubyprofitcenterGet",
+              "ApiGatewayMethodUploadtodotpeGet"
             ]
           },
           "HelloLambdaPermissionApiGateway": {
@@ -638,7 +747,7 @@
           "HelloLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "HelloLambdaVersion5j1ygs2y7uv0X5JeXs4ggyQXktE6PPKhSLY3c9lg"
+              "Ref": "HelloLambdaVersionPiH6KZgcqnw0D8ivUOEknaDhhnaZQKZYP3DgDJrnvs"
             }
           },
           "ServiceEndpoint": {
@@ -808,6 +917,38 @@
               },
               "integration": "AWS_PROXY"
             }
+          },
+          {
+            "http": {
+              "method": "get",
+              "path": "uploadToDotPe",
+              "parameters": {
+                "querystrings": {
+                  "tenantId": true,
+                  "branchId": true
+                }
+              },
+              "cors": {
+                "origins": [
+                  "*"
+                ],
+                "origin": "*",
+                "methods": [
+                  "OPTIONS",
+                  "GET"
+                ],
+                "headers": [
+                  "Content-Type",
+                  "X-Amz-Date",
+                  "Authorization",
+                  "X-Api-Key",
+                  "X-Amz-Security-Token",
+                  "X-Amz-User-Agent"
+                ],
+                "allowCredentials": false
+              },
+              "integration": "AWS_PROXY"
+            }
           }
         ],
         "name": "ChefDeskWebApi-prod-hello",
@@ -816,14 +957,14 @@
         },
         "memory": 1024,
         "timeout": 6,
-        "runtime": "nodejs8.10",
+        "runtime": "nodejs10.x",
         "vpc": {}
       }
     },
     "layers": {}
   },
   "package": {
-    "artifactDirectoryName": "serverless/ChefDeskWebApi/prod/1579241195934-2020-01-17T06:06:35.934Z",
+    "artifactDirectoryName": "serverless/ChefDeskWebApi/prod/1601623776801-2020-10-02T07:29:36.801Z",
     "artifact": ""
   }
 }

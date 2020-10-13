@@ -6,6 +6,7 @@ const express = require('express')
 const serverless = require('serverless-http')
 const bodyParser = require('body-parser')
 const pool = require('./configs/dbConfig')
+const orderpool = require('./configs/orderDbConfig')
 var cors = require('cors')
 
 const app = express()
@@ -14,7 +15,7 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cors())
 
-setRoutes(app, pool)
+setRoutes(app, pool, orderpool)
 
 app.all('*', function (req, res) {
   const response = { data: null, message: 'Route not found!!' }
